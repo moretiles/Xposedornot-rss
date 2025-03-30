@@ -19,7 +19,7 @@ EOF
 select_sites=""
 while IFS= read -r; do
     select_sites+="$(printf '.["domain"] == "%s" or ' "${REPLY}")"
-done < ./sites
+done < ./sites.txt
 select_sites+="false"
 
 # The query selects sites, formats fields as rss, and sorts in reverse chronological order.
