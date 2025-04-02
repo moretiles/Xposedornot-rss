@@ -19,7 +19,7 @@ EOF
 # No attempt to escape input is provided so don't let anyone edit the file.
 select_sites=""
 while IFS= read -r; do
-    select_sites+="$(printf '.["Domain"] == "%s" or ' "${REPLY}")"
+    select_sites+="$(printf '.["Domain"] == "%s" or ' "$(printf "${REPLY}" | jq -sRr '@uri')")"
 done < ./sites.txt
 select_sites+="false"
 
