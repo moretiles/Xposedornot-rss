@@ -7,3 +7,9 @@ Just edit sites.txt and run the run.sh script.
 Unofficial project.
 
 Please obey the rate limiting requests of Xposedornot.
+
+---
+
+Also includes scripts for:
+* [haveibeenpwned](https://haveibeenpwned.com).
+* [Nist NVD](https://nvd.nist.gov/)
