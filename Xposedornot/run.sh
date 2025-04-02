@@ -24,7 +24,7 @@ select_sites+="false"
 
 # The query selects sites, formats fields as rss, and sorts in reverse chronological order.
 # yq then converts to xml.
-curl "${breach_endpoint}" | jq ".exposedBreaches | map(select(${select_sites}) | \
+curl --silent "${breach_endpoint}" | jq ".exposedBreaches | map(select(${select_sites}) | \
     .title = .breachID + \" \" + .breachedDate | .pubDate = .breachedDate | \
     .link = \"https://xposedornot.com\" | .description = .exposureDescription) | \
     sort_by(.[\"breachedDate\"]) | reverse" | \
