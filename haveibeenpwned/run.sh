@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -eu
+
+#breach_endpoint='https://api.xposedornot.com/v1/breaches'
+breach_endpoint='https://haveibeenpwned.com/api/v3/breaches'
+
+mytmp="$(mktemp)"
+cat > "${mytmp}" <<EOF
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+    <title>Data Breaches</title>
+    <description>See whether a site you use has a data breach recorded on haveibeenpwned.com</description>
+EOF
+
+# Constructs a string that matches entries containing any of the domains in the sites file.
+# No attempt to escape input is provided so don't let anyone edit the file.
+select_sites=""
+while IFS= read -r; do
+    select_sites+="$(printf '.["Domain"] == "%s" or ' "${REPLY}")"
+done < ./sites.txt
+select_sites+="false"
+
+# The query selects sites, formats fields as rss, and sorts in reverse chronological order.
+# yq then converts to xml.
+#jq ". | map(select(${select_sites}) | \
+curl --silent "${breach_endpoint}" | jq ". | map(select(${select_sites}) | \
+    .title = .Title + \" \" + .BreachDate | .pubDate = .BreachDate | \
+    .link = \"https://haveibeenpwned.com\" | .description = .Description) | \
+    sort_by(.[\"BreachDate\"]) | reverse" | \
+    yq 'map("item": .) | .[][][]' -o xml >> "${mytmp}" # output as xml to mytmp
+
+cat >> "${mytmp}" <<EOF
+</channel>
+
+</rss>
+EOF
+
+mv "${mytmp}" rss.xml
